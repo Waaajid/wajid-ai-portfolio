@@ -8,7 +8,7 @@ A responsive portfolio with an interactive 3D system visual, detailed project st
 python3 -m http.server 8080
 ```
 
-Open http://localhost:8080.
+Open http://www.wajids.co.uk
 
 ## Hosting
 
