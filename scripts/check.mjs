@@ -18,8 +18,8 @@ const files = await walk(root),
   html = files.filter((f) => f.endsWith(".html"));
 assert.equal(
   html.length,
-  9,
-  "Expected homepage, four destinations, three case studies and 404",
+  10,
+  "Expected homepage, four destinations, four case studies and 404",
 );
 for (const file of html) {
   const source = await readFile(file, "utf8");

@@ -30,11 +30,14 @@ The existing repository and custom domain are retained. `.github/workflows/deplo
 
 Reviewed 3 November 2026:
 
-| Project             | Source                                     | Portfolio treatment                                                                                                                                  |
-| ------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| AI Red Team Tool    | `ai-redteam-competition-tool` at `f18bcc5` | Actual local interface; TypeScript check passed. Model evaluation requires configured services and credentials; no end-to-end model results claimed. |
-| Monster Manor       | `monster-manor` at `e56455f`               | Actual local interface and solo game; rule suite checked. Public deployment and player capacity remain unverified.                                   |
-| Luma API Playground | `lumalabstest` at `720ab58`                | Labelled architecture diagram. The server references a missing `public/index.html`; no demo link or generated result claimed.                        |
+| Project             | Source                                     | Portfolio treatment                                                                                                                                                                                                                        |
+| ------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| AI Red Team Tool    | `ai-redteam-competition-tool` at `f18bcc5` | Actual local interface; TypeScript check passed. Model evaluation requires configured services and credentials; no end-to-end model results claimed.                                                                                       |
+| Monster Manor       | `monster-manor` at `e56455f`               | Actual local interface and solo game; rule suite checked. Public deployment and player capacity remain unverified.                                                                                                                         |
+| Team Quiz Game      | `quiz-red-ready` at `29d647d`              | Actual local instructions and player-entry captures; Vite build and TypeScript check passed. Full Firebase multiplayer and earned-reward flows remain unverified. The hosted demo differs from this checkout, so no Play link is included. |
+| Luma API Playground | `lumalabstest` at `720ab58`                | Labelled architecture diagram. The server references a missing `public/index.html`; no demo link or generated result claimed.                                                                                                              |
+
+Team Quiz Game verification also exercised the original question component in isolation: answer submission, field locking, the twelve-second timer and its next-question signal passed. The host interface was rendered with database traffic blocked; no live game session was created. The local scratch library request was blocked, so scratch interaction was not verified. The hosted URL listed by the repository loads, but its session-entry controls differ and `/instructions` shows its not-found view.
 
 Monster Manor captures depict the existing game. Its assets retain their original licences; see [ASSETS.md](https://github.com/Waaajid/monster-manor/blob/main/convent/ASSETS.md). No model, sound or original project asset bundle is redistributed here. No host credentials or private host URLs are included.
 

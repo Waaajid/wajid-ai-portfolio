@@ -113,6 +113,18 @@ const projects = [
     commit: "e56455f",
   },
   {
+    slug: "team-quiz-game",
+    name: "Team Quiz Game",
+    type: "Game mechanics · React / TypeScript / Vite",
+    description:
+      "A team party game built around matching answers, timed questions and separate host and player experiences.",
+    image: "team-quiz.jpg",
+    alt: "Actual Team Quiz Game instructions running locally, explaining the matching-answer mechanic, team strategy and timed rounds.",
+    status: "Local interface verified · Full multiplayer flow unverified",
+    repo: "quiz-red-ready",
+    commit: "29d647d",
+  },
+  {
     slug: "luma-playground",
     name: "Luma API Playground",
     type: "Multimodal integration · Express / REST APIs",
@@ -128,7 +140,7 @@ const projects = [
 await page(
   "/projects/",
   "Projects",
-  "Selected public projects: AI Red Team Tool, Monster Manor and Luma API Playground, with evidence and honest status.",
+  "Selected public projects: AI Red Team Tool, Monster Manor, Team Quiz Game and Luma API Playground, with evidence and honest status.",
   `<main id="main" class="content-main">${hero(3, "Projects", "Working ideas.<br>Visible decisions.", "A selection from my public GitHub. Each study separates what the code implements, what I could run, and what still needs verification.")}<section class="project-list" aria-label="Selected projects">${projects.map((p, i) => `<article class="project-feature"><div class="project-heading"><span class="row-number">0${i + 1}</span><h2><a href="/projects/${p.slug}/">${p.name} ${arrow}</a></h2><p>${p.type}</p></div><a class="project-image" href="/projects/${p.slug}/" tabindex="-1" aria-hidden="true"><img src="/assets/${p.image}" alt="" width="1440" height="900" loading="lazy"></a><div class="project-summary"><p>${p.description}</p><div><p class="project-status">${p.status}</p>${link(`/projects/${p.slug}/`, "Read the case study")}</div></div></article>`).join("")}</section><section class="next-section"><span>More experiments, in the open</span>${link("https://github.com/Waaajid", "Explore GitHub")}</section></main>`,
   "Projects",
 );
@@ -220,6 +232,46 @@ for (const p of projects) {
         "Asset credits",
         `The interface capture is from the working local game. The project credits Kenney and Quaternius assets, Google Fonts, three.js example assets, generated artwork and project-created procedural assets. ${link("https://github.com/Waaajid/monster-manor/blob/main/convent/ASSETS.md", "Read the complete asset and licence record")}`,
       );
+  if (p.slug === "team-quiz-game")
+    body =
+      section(
+        "The problem",
+        "A party game needs to explain its central idea quickly, then keep a room of players moving together. Here, the goal is to match teammates’ answers rather than find one correct answer.",
+        "The intended users are groups playing in teams and a host managing the session. The product challenge is the hand-off from nickname entry to team selection, timed answers, shared results and rewards.",
+      ) +
+      section(
+        "My contribution",
+        "This public project brings together the matching-answer mechanic, the player onboarding journey and a separate host dashboard. The React implementation connects those screens through shared quiz state and Firebase session services.",
+        "The focus of this study is the interaction design and implementation visible in the repository: making the rules understandable, managing time pressure and separating the host’s controls from the player’s task.",
+      ) +
+      diagram(
+        [
+          "Player / host routes",
+          "React QuizContext",
+          "Firebase sessions",
+          "Answers + round state",
+        ],
+        "Vite serves the React interface. Session services create, join and subscribe to Firebase Realtime Database records for teams, players, answers and game phases. This diagram describes the code; it does not establish a verified multiplayer session.",
+      ) +
+      section(
+        "The player journey",
+        "Nickname entry leads to a session-code screen. After a session is joined, the code provides team selection, a waiting view and a host-started quiz. The instructions describe three rounds of four questions, with twelve seconds for each answer.",
+        "The question component includes a countdown, answer submission, a waiting state and a next-question signal. Round summaries display winners and matching answers. Dice-roll and scratch-card reward screens extend the game beyond the final score.",
+      ) +
+      '<figure class="case-image"><img src="/assets/team-quiz-entry.jpg" alt="Actual local player entry after nickname submission, asking for a game session code. No team or session data has been fabricated." width="1440" height="900" loading="lazy"><figcaption>Actual local player entry. Joining a team requires a configured game session.</figcaption></figure>' +
+      section(
+        "The trade-offs",
+        "A shared Firebase session can coordinate the room, but the interface still needs clear ownership of the timer, question progression and recovery after a refresh. Nickname and team state live in React memory, so a page reload restarts onboarding.",
+        "The active session scorer groups answers after lowercasing and trimming. A separate fuzzy-matching helper exists, but it is not wired into that scorer. Consistent rules between scoring and the result display are an important next check.",
+        "Reward screens introduce their own dependencies. The dice screen expects earned rolls and references sound files absent from this checkout. The scratch interaction loads an external library. Rendering a reward screen alone does not verify the complete winner-to-reward journey.",
+      ) +
+      section(
+        "Current status",
+        "The current checkout builds successfully and passes its TypeScript check. Nickname validation, keyboard submission, session-code entry and instructions were checked in the running local app. The captures show those actual interfaces, without added session data or game results.",
+        "The original question component was also checked in isolation: submission locks the answer field, the twelve-second countdown exposes the next action, and that action emits a next-question signal. The host dashboard was rendered with database requests blocked; the local scratch interaction could not be verified because its external library request was blocked.",
+        "The host dashboard, timer, round summaries, dice screen and scratch-card view are present in the implementation. Full session creation, cross-device team play, scoring, round progression and the earned-reward flow have not been verified together.",
+        "The repository’s hosted demo responds, but its session-entry flow differs from this checkout and its instructions route shows a not-found view. A public playthrough of this version has not been verified, so no Play link is provided.",
+      );
   if (p.slug === "luma-playground")
     body =
       section(
@@ -286,4 +338,6 @@ await writeFile(
   path.join(out, "sitemap.xml"),
   `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${["/", ...destinations.map((d) => d[1]), ...projects.map((p) => `/projects/${p.slug}/`)].map((url) => `<url><loc>https://wajids.co.uk${url}</loc></url>`).join("")}</urlset>`,
 );
-console.log("Built 8 portfolio pages and custom 404 in _site/");
+console.log(
+  `Built ${5 + projects.length} portfolio pages and custom 404 in _site/`,
+);
