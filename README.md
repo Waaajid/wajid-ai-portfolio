@@ -1,36 +1,41 @@
 # Wajid Khan — AI Product Portfolio
 
-A responsive portfolio with an interactive 3D system visual, detailed project stories, an expertise explorer, and email and LinkedIn contact links.
+Live: https://wajids.co.uk/
 
-## Run locally
+Four destinations: Product, AI, Projects and Contact. The homepage uses native scroll and CSS 3D transforms to move between spatial chapters. Titles are real HTML links. Dedicated pages and case studies are generated as complete static HTML, so direct URLs, refresh and browser history work without a client router.
+
+## Build and preview
+
+Requires Node.js 22 or later. No packages, backend, API keys or environment variables are needed.
 
 ```sh
-python3 -m http.server 8080
+node scripts/build.mjs
+node scripts/check.mjs
+python3 -m http.server 8080 --directory _site
 ```
 
-Open http://localhost:8080. The live portfolio is at https://wajids.co.uk.
+Open http://localhost:8080. Edit content in `scripts/build.mjs`, styles in `style.css` and homepage interactions in `app.js`. `assets/` contains actual interface captures, a labelled architecture diagram and site identity assets.
+
+## Accessibility
+
+Native scrolling supports touch. The homepage provides chapter buttons, permanent destination links and keyboard chapter navigation with arrow keys, Page Up/Down, Home and End. All links support visible keyboard focus. Inactive spatial chapters are inert. Simple view exposes all four chapters in document order and is the default for reduced motion. Without JavaScript, the same complete list remains usable. CSS 3D has no WebGL dependency; unsupported perspective falls back to simple view.
 
 ## Hosting
 
-- Branch: `main`
-- Framework: none / static HTML
-- Build command: none
-- Publish directory: `.` (repository root)
+The existing repository and custom domain are retained. `.github/workflows/deploy.yml` builds `_site/` with the dependency-free generator, then uploads that entire directory to GitHub Pages. The build copies `CNAME`, `.nojekyll`, styles, scripts and all public assets. It generates every destination, case study, custom 404, sitemap and robots file. Source code, project review checkouts, dependencies and test artifacts are excluded from the artifact.
 
-Connect this repository to a static host, or upload `index.html`, `style.css` and `app.js` together. No package installation, backend, API keys or environment variables are required.
+`CNAME` remains `wajids.co.uk`. DNS changes are not required. GitHub Pages should use **GitHub Actions** as its source to avoid competing branch and workflow deployments.
 
-## Files
+## Project evidence
 
-- `index.html`: page structure, technical studies, profile and contact links.
-- `style.css`: typography, colours, layout and responsive styles.
-- `app.js`: 3D canvas visual, project details, expertise panels, tabs and dialogs.
+Reviewed 3 November 2026:
 
-Manrope loads from Google Fonts with local fallbacks. The 3D visual uses projected 3D coordinates on Canvas with no external JavaScript dependencies. It supports reduced-motion preferences and a pause control.
+| Project             | Source                                     | Portfolio treatment                                                                                                                                  |
+| ------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| AI Red Team Tool    | `ai-redteam-competition-tool` at `f18bcc5` | Actual local interface; TypeScript check passed. Model evaluation requires configured services and credentials; no end-to-end model results claimed. |
+| Monster Manor       | `monster-manor` at `e56455f`               | Actual local interface and solo game; rule suite checked. Public deployment and player capacity remain unverified.                                   |
+| Luma API Playground | `lumalabstest` at `720ab58`                | Labelled architecture diagram. The server references a missing `public/index.html`; no demo link or generated result claimed.                        |
 
-## Validation
+Monster Manor captures depict the existing game. Its assets retain their original licences; see [ASSETS.md](https://github.com/Waaajid/monster-manor/blob/main/convent/ASSETS.md). No model, sound or original project asset bundle is redistributed here. No host credentials or private host URLs are included.
 
-JavaScript syntax and checks for section anchors, unique IDs, contact links and all nine detail panels passed. Desktop and mobile layouts, study dialogs, and keyboard tab navigation have been checked in a browser.
-
-## Visual system
-
-Onyx black (`#01010D`), electric indigo (`#6331FB`), and tropical mint (`#88F9C0`). Responsive layouts, visible keyboard focus, reduced motion support, and a pause control keep the presentation accessible. Technical studies focus on system design without employer or proprietary product names.
+The portfolio has no contact form or analytics. Contact links open email, LinkedIn and GitHub. Manrope is requested from Google Fonts with a system fallback.
