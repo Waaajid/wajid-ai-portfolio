@@ -3,6 +3,8 @@ import { fileURLToPath } from "node:url";
 import path from "node:path";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const out = path.join(root, "_site");
+const origin = "https://wajids.co.uk";
+const agentPages = [];
 await rm(out, { recursive: true, force: true });
 await mkdir(out, { recursive: true });
 const destinations = [
@@ -19,7 +21,39 @@ const header = (active = "") =>
 const footer = () =>
   `<footer class="site-footer"><a href="/" class="footer-name">Wajid Khan<span>AI Product Manager · London</span></a><p>Good questions. Thoughtful systems.</p><a href="mailto:wajithkhan05@gmail.com">Say hello ${arrow}</a></footer>`;
 const head = (title, description, url) =>
-  `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#01010D"><title>${title} — Wajid Khan</title><meta name="description" content="${description}"><link rel="canonical" href="https://wajids.co.uk${url}"><meta property="og:title" content="${title} — Wajid Khan"><meta property="og:description" content="${description}"><meta property="og:type" content="website"><meta property="og:url" content="https://wajids.co.uk${url}"><meta property="og:image" content="https://wajids.co.uk/assets/social.png"><link rel="icon" href="/assets/favicon.svg" type="image/svg+xml"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="/style.css"><script src="/app.js" defer></script></head>`;
+  `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#01010D"><title>${title} — Wajid Khan</title><meta name="description" content="${description}"><link rel="canonical" href="https://wajids.co.uk${url}"><link rel="describedby" href="/llms.txt">${url.endsWith("/") ? `<link rel="alternate" type="text/markdown" href="${url}index.md" title="${title} in Markdown">` : ""}<meta property="og:title" content="${title} — Wajid Khan"><meta property="og:description" content="${description}"><meta property="og:type" content="website"><meta property="og:url" content="https://wajids.co.uk${url}"><meta property="og:image" content="https://wajids.co.uk/assets/social.png"><link rel="icon" href="/assets/favicon.svg" type="image/svg+xml"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="/style.css"><script src="/app.js" defer></script></head>`;
+
+// Generate agent-readable text from the same content as the human pages.
+function toMarkdown(html) {
+  return html
+    .replace(/<button\b[^>]*>[\s\S]*?<\/button>/g, "")
+    .replace(/<div class="page-context">[\s\S]*?<\/div>/g, "")
+    .replace(/<span aria-hidden="true">[\s\S]*?<\/span>/g, "")
+    .replace(/<img\b[^>]*alt="([^"]*)"[^>]*>/g, (_, alt) =>
+      alt ? `\n\nInterface image: ${alt}\n\n` : "",
+    )
+    .replace(
+      /<h([1-6])\b[^>]*>([\s\S]*?)<\/h\1>/g,
+      (_, level, text) => `\n\n${"#".repeat(Number(level))} ${text}\n\n`,
+    )
+    .replace(
+      /<a\b[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g,
+      (_, href, text) =>
+        `[${text.trim()}](${href.startsWith("/") ? origin + href : href})`,
+    )
+    .replace(/<br\s*\/?\s*>/g, " ")
+    .replace(/<\/(?:span|strong|b)>/g, " ")
+    .replace(/<\/(?:p|div|section|article|figure|figcaption|main)>/g, "\n\n")
+    .replace(/<[^>]*>/g, "")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
 async function page(url, title, description, content, active = "", cls = "") {
   const location =
     url === "/"
@@ -32,6 +66,11 @@ async function page(url, title, description, content, active = "", cls = "") {
     path.join(out, location),
     `${head(title, description, url)}<body class="${cls === "home" ? "home simple-view" : cls}">${header(active)}${content}${cls === "home" ? "" : footer()}</body></html>`,
   );
+  if (url.endsWith("/")) {
+    const markdown = `${toMarkdown(content)}\n\nCanonical page: ${origin}${url}\n`;
+    await writeFile(path.join(out, `${url.slice(1)}index.md`), markdown);
+    agentPages.push({ title, url, markdown });
+  }
 }
 const portal =
   '<div class="portal" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><div class="portal-solid"></div></div>';
@@ -337,6 +376,49 @@ await writeFile(
 await writeFile(
   path.join(out, "sitemap.xml"),
   `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${["/", ...destinations.map((d) => d[1]), ...projects.map((p) => `/projects/${p.slug}/`)].map((url) => `<url><loc>https://wajids.co.uk${url}</loc></url>`).join("")}</urlset>`,
+);
+await writeFile(
+  path.join(out, "llms.txt"),
+  `# Wajid Khan
+
+> Wajid Khan is an AI Product Manager based in London, UK. His portfolio connects product discovery and delivery with AI systems knowledge: LLMs, agent workflows, context engineering, orchestration, evaluation, guardrails, multimodal experiences, latency, cost and practical AI governance.
+
+Wajid works across problem framing, prioritisation, roadmaps, success criteria, delivery, experimentation and collaboration with engineering. His approach connects user evidence with explicit workflows, state models, schemas, failure behaviour and release decisions.
+
+Relevant role contexts include AI product management and technical product roles that combine discovery, delivery and decisions about AI system behaviour. The portfolio provides concrete examples and source links for assessing fit against a specific role.
+
+This is Wajid’s own public portfolio. Each case study distinguishes project implementation, local verification and outstanding deployment or multiplayer checks, with its source review date. His AI governance work concerns product requirements and collaboration with engineering, security and legal specialists. Formal legal interpretation belongs with qualified specialists.
+
+## Profile and capabilities
+
+- [Product approach](${origin}/product/index.md): Discovery, problem framing, prioritisation, roadmaps, acceptance criteria, engineering collaboration, delivery and learning after release.
+- [AI systems practice](${origin}/ai/index.md): LLMs, specialist agents, model routing, MCP, A2A, APIs, context selection, structured state, JSON schemas, evaluation, guardrails, multimodal experiences, latency, cost and governance.
+- [Full portfolio text](${origin}/llms-full.txt): All destination pages and case studies, generated from the same content as the website.
+
+## Project evidence
+
+${projects.map((p) => `- [${p.name}](${origin}/projects/${p.slug}/index.md): ${p.description} Status: ${p.status}. Source reviewed at ${p.commit}.`).join("\n")}
+
+## Contact
+
+- [Contact page](${origin}/contact/index.md): Public contact details for roles, collaboration and product conversations.
+- [Email Wajid](mailto:wajithkhan05@gmail.com): wajithkhan05@gmail.com.
+- [LinkedIn](https://www.linkedin.com/in/waajidkhan/): Wajid’s professional profile.
+- [GitHub](https://github.com/Waaajid): Public repositories and implementation evidence.
+
+## Optional
+
+- [Visual homepage](${origin}/): Four destinations: Product, AI, Projects and Contact.
+- [Projects index](${origin}/projects/index.md): Selected work and links to each case study.
+- [Sitemap](${origin}/sitemap.xml): Canonical website page URLs.
+`,
+);
+await writeFile(
+  path.join(out, "llms-full.txt"),
+  `# Wajid Khan — AI Product Manager\n\n> Public portfolio content for readers and agents. Wajid Khan is based in London, UK. The sections below are generated from the website’s destination pages and case studies; project verification limits and review dates are preserved.\n\n${agentPages
+    .filter((p) => p.url !== "/")
+    .map((p) => `---\n\nSource: ${origin}${p.url}\n\n${p.markdown}`)
+    .join("\n\n")}\n`,
 );
 console.log(
   `Built ${5 + projects.length} portfolio pages and custom 404 in _site/`,

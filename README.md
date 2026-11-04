@@ -26,6 +26,12 @@ The existing repository and custom domain are retained. `.github/workflows/deplo
 
 `CNAME` remains `wajids.co.uk`. DNS changes are not required. GitHub Pages should use **GitHub Actions** as its source to avoid competing branch and workflow deployments.
 
+## Agent-readable content
+
+`/llms.txt` provides a concise public profile and a curated index of capabilities, project evidence and contact links. `/llms-full.txt` contains all destination and case-study content. Every public page also has an `index.md` version, such as `/ai/index.md`, generated from the same content as the HTML to preserve verification limits and avoid maintaining a second biography.
+
+HTML pages advertise `/llms.txt` using `rel="describedby"` and their Markdown versions using `rel="alternate"`. The existing `robots.txt` permits crawling and the sitemap continues listing the canonical HTML pages. No API, credentials, private information or universal job-fit claims are added. `llms.txt` follows an optional discovery proposal; crawler use and search ranking are not guaranteed.
+
 ## Project evidence
 
 Reviewed 3 November 2026:

@@ -28,6 +28,10 @@ for (const file of html) {
   assert.equal((source.match(/<h1[ >]/g) || []).length, 1, `One h1: ${file}`);
   assert(source.includes("https://wajids.co.uk/"), "Canonical domain");
   assert(!/Sidekick|Conducttr|ChatGPT/i.test(source), "Restricted content");
+  assert(
+    source.includes('rel="describedby" href="/llms.txt"'),
+    "Agent discovery link",
+  );
   for (const match of source.matchAll(/(?:href|src)="([^"]+)"/g)) {
     const url = match[1];
     if (url.startsWith("#")) {
@@ -41,6 +45,52 @@ for (const file of html) {
     );
     assert((await stat(target)).isFile(), `Missing file ${url}`);
   }
+}
+const agentFiles = files.filter(
+  (file) => file.endsWith(".md") || /\/llms(?:-full)?\.txt$/.test(file),
+);
+assert.equal(
+  agentFiles.length,
+  11,
+  "Nine page Markdown files and two agent entry points",
+);
+for (const file of agentFiles) {
+  const source = await readFile(file, "utf8");
+  assert(source.startsWith("# "), `Markdown title: ${file}`);
+  assert(
+    !/<\/?(?:html|main|script|div|section)\b/i.test(source),
+    `HTML leaked into agent text: ${file}`,
+  );
+  assert(
+    !/Sidekick|Conducttr|ChatGPT/i.test(source),
+    `Restricted agent content: ${file}`,
+  );
+  for (const match of source.matchAll(
+    /\]\((https:\/\/wajids\.co\.uk[^)\s]*)\)/g,
+  )) {
+    const url = new URL(match[1]);
+    const target = path.join(
+      root,
+      url.pathname.endsWith("/") ? `${url.pathname}index.html` : url.pathname,
+    );
+    assert(
+      (await stat(target)).isFile(),
+      `Missing agent reference ${url.pathname}`,
+    );
+  }
+}
+const fullProfile = await readFile(path.join(root, "llms-full.txt"), "utf8");
+for (const term of [
+  "AI Product Manager",
+  "London",
+  "wajithkhan05@gmail.com",
+  "AI Red Team Tool",
+  "Monster Manor",
+  "Team Quiz Game",
+  "Luma API Playground",
+  "unverified",
+]) {
+  assert(fullProfile.includes(term), `Missing profile detail: ${term}`);
 }
 assert.equal(
   (await readFile(path.join(root, "CNAME"), "utf8")).trim(),
@@ -56,5 +106,5 @@ assert(
   "Artifact contains source or secrets",
 );
 console.log(
-  `PASS: ${html.length} HTML pages, all internal links/assets, anchors, content restrictions and domain packaging`,
+  `PASS: ${html.length} HTML pages, ${agentFiles.length} agent-readable files, links/assets, anchors, content restrictions and domain packaging`,
 );
