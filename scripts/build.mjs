@@ -1,10 +1,13 @@
 import { mkdir, writeFile, cp, rm } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const out = path.join(root, "_site");
 const origin = "https://wajids.co.uk";
 const agentPages = [];
+const cssVersion = createHash("sha1").update(readFileSync(path.join(root, "style.css"))).digest("hex").slice(0, 8);
 await rm(out, { recursive: true, force: true });
 await mkdir(out, { recursive: true });
 const destinations = [
@@ -17,11 +20,11 @@ const arrow = '<span aria-hidden="true">↗</span>';
 const link = (url, text, cls = "text-link") =>
   `<a class="${cls}" href="${url}"${url.startsWith("https:") ? ' target="_blank" rel="noopener noreferrer"' : ""}>${text} ${arrow}</a>`;
 const header = (active = "") =>
-  `<a class="skip" href="#main">Skip to content</a><header class="site-header"><a class="wordmark" href="/" aria-label="Wajid Khan home">w<span>.</span></a><nav aria-label="Main navigation">${destinations.map(([label, url]) => `<a href="${url}"${label === active ? ' aria-current="page"' : ""}>${label}</a>`).join("")}</nav><span class="header-location">London, UK <span class="local-time" aria-hidden="true"></span></span></header>`;
+  `<a class="skip" href="#main">Skip to content</a><header class="site-header"><a class="wordmark" href="/" aria-label="Wajid Khan home">Wajid Khan<span>.</span></a><nav aria-label="Main navigation">${destinations.map(([label, url]) => `<a href="${url}"${label === active ? ' aria-current="page"' : ""}>${label}</a>`).join("")}</nav></header>`;
 const footer = () =>
   `<footer class="site-footer"><a href="/" class="footer-name">Wajid Khan<span>AI Product Manager · London</span></a><p>Good questions. Thoughtful systems.</p><a href="mailto:wajithkhan05@gmail.com">Say hello ${arrow}</a></footer>`;
 const head = (title, description, url) =>
-  `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#01010D"><title>${title} — Wajid Khan</title><meta name="description" content="${description}"><link rel="canonical" href="https://wajids.co.uk${url}"><link rel="describedby" href="/llms.txt">${url.endsWith("/") ? `<link rel="alternate" type="text/markdown" href="${url}index.md" title="${title} in Markdown">` : ""}<meta property="og:title" content="${title} — Wajid Khan"><meta property="og:description" content="${description}"><meta property="og:type" content="website"><meta property="og:url" content="https://wajids.co.uk${url}"><meta property="og:image" content="https://wajids.co.uk/assets/social.png"><link rel="icon" href="/assets/favicon.svg" type="image/svg+xml"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="/style.css"><script src="/app.js" defer></script></head>`;
+  `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="theme-color" content="#F5F3ED"><title>${title} — Wajid Khan</title><meta name="description" content="${description}"><link rel="canonical" href="https://wajids.co.uk${url}"><link rel="describedby" href="/llms.txt">${url.endsWith("/") ? `<link rel="alternate" type="text/markdown" href="${url}index.md" title="${title} in Markdown">` : ""}<meta property="og:title" content="${title} — Wajid Khan"><meta property="og:description" content="${description}"><meta property="og:type" content="website"><meta property="og:url" content="https://wajids.co.uk${url}"><meta property="og:image" content="https://wajids.co.uk/assets/social.png"><link rel="icon" href="/assets/favicon.svg" type="image/svg+xml"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet"><link rel="stylesheet" href="/style.css?v=${cssVersion}"><script src="/app.js" defer></script></head>`;
 
 // Generate agent-readable text from the same content as the human pages.
 function toMarkdown(html) {
@@ -64,52 +67,17 @@ async function page(url, title, description, content, active = "", cls = "") {
   await mkdir(path.dirname(path.join(out, location)), { recursive: true });
   await writeFile(
     path.join(out, location),
-    `${head(title, description, url)}<body class="${cls === "home" ? "home simple-view" : cls}">${header(active)}${content}${cls === "home" ? "" : footer()}</body></html>`,
+    `${head(title, description, url)}<body class="${cls}">${header(active)}${content}${cls === "home" ? "" : footer()}</body></html>`,
   );
   if (url.endsWith("/")) {
-    const markdown = `${toMarkdown(content)}\n\nCanonical page: ${origin}${url}\n`;
+    const text = toMarkdown(content);
+    const markdown = `${text.startsWith("# ") ? text : `# ${title} — Wajid Khan\n\n${text}`}\n\nCanonical page: ${origin}${url}\n`;
     await writeFile(path.join(out, `${url.slice(1)}index.md`), markdown);
     agentPages.push({ title, url, markdown });
   }
 }
-const portal =
-  '<div class="portal" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><div class="portal-solid"></div></div>';
-const chapters = [
-  [
-    "Product",
-    "From the right problem<br>to a product worth shipping.",
-    "Explore my approach",
-    "/product/",
-  ],
-  [
-    "AI",
-    "The intelligence is in<br>how the pieces work together.",
-    "Go inside the systems",
-    "/ai/",
-  ],
-  [
-    "Projects",
-    "Ideas made tangible.<br>Code, interfaces and trade-offs.",
-    "Explore selected work",
-    "/projects/",
-  ],
-  [
-    "Contact",
-    "A useful conversation<br>is a good place to start.",
-    "Let’s talk",
-    "/contact/",
-  ],
-];
-await page(
-  "/",
-  "AI Product Manager",
-  "Wajid Khan, AI Product Manager in London. Explore product decisions, AI systems and real projects.",
-  `<main id="main"><h1 class="sr-only">Wajid Khan — AI Product Manager</h1><div class="home-intro"><p>Wajid Khan <span>/ AI Product Manager</span></p><p>I connect product thinking<br>with AI systems depth.</p></div><div class="journey"><div class="scene"><div class="scene-axis" aria-hidden="true"></div>${chapters.map(([title, note, label, url], i) => `<section class="chapter chapter-${i}" data-chapter="${i}" aria-label="${title}">${portal}<div class="chapter-copy"><span class="chapter-number" aria-hidden="true">0${i + 1}</span><h2><a href="${url}">${title}<span class="title-arrow" aria-hidden="true">↗</span></a></h2><div class="chapter-bottom"><p>${note}</p>${link(url, label, "chapter-link")}</div></div></section>`).join("")}</div></div><div class="journey-controls"><button class="scroll-cue" data-next>Scroll to explore <span aria-hidden="true">↓</span></button><div class="chapter-switcher" aria-label="Jump to chapter">${chapters.map(([title], i) => `<button data-jump="${i}" aria-label="Show ${title} chapter" aria-pressed="${i === 0}"><span class="switch-number">0${i + 1}</span><span class="switch-name">${title}</span></button>`).join("")}</div><button class="motion-toggle" aria-pressed="false">Simple view</button></div><p class="sr-only" id="chapter-status" aria-live="polite">Product chapter, 1 of 4</p></main>`,
-  "",
-  "home",
-);
 const hero = (n, title, headline, intro) =>
-  `<section class="page-hero"><div class="page-context"><a href="/">Index</a><span>0${n} / ${title}</span></div><h1>${headline}</h1><p class="page-lead">${intro}</p></section>`;
+  `<section class="page-hero"><div class="page-context"><a href="/">Home</a><span>0${n} / ${title}</span></div><h1>${headline}</h1><p class="page-lead">${intro}</p></section>`;
 const row = (n, title, text, question) =>
   `<article class="decision-row"><span class="row-number">${n}</span><h3>${title}</h3><div><p>${text}</p><p class="decision-question">${question}</p></div></article>`;
 await page(
@@ -127,6 +95,18 @@ await page(
   "AI",
 );
 const projects = [
+  {
+    slug: "coding-agent-aggregator",
+    name: "Coding Agent Aggregator",
+    type: "Open source · TypeScript / Node.js / React / MCP",
+    description:
+      "A local-first daemon that lets a manager coding agent delegate work to worker agents in isolated git worktrees, with one control plane to approve, review and merge.",
+    image: "aggregator.jpg",
+    alt: "The Coding Agent Aggregator overview board running against mock agents: tasks moving through working, ready to review and needs attention, with an approvals counter.",
+    status: "Open source (MIT) · Tests and CI pass · Real Codex and Gemini CLIs unverified",
+    repo: "coding-agent-aggregator",
+    commit: "913ed68",
+  },
   {
     slug: "ai-red-team",
     name: "AI Red Team Tool",
@@ -176,6 +156,19 @@ const projects = [
     commit: "720ab58",
   },
 ];
+const [latest, ...others] = projects;
+await page(
+  "/", "AI Product Manager",
+  "Wajid Khan, AI Product Manager in London. I specify AI systems and build them to test whether the specification holds. Case studies state what ran and what didn’t.",
+  `<main id="main" class="new-home">
+    <section class="hero-new"><div class="wrap"><h1>AI product manager. I build what I <em>specify.</em></h1><p class="hero-lede">I’m Wajid, based in London. I work on the decisions between an idea and a working AI product: what the system knows, what it may do, and how we judge the result. Then I build it, with AI coding agents, to find out if I was right.</p><div class="hero-actions"><a class="btn" href="/projects/">See the work ${arrow}</a><a class="btn ghost" href="/contact/">Get in touch</a></div><div class="hero-meta"><span><b>${projects.length}</b> public projects</span><span><b>Honest status</b> on every case study: what ran, what didn’t</span><span><b>London</b>, UK</span></div></div></section>
+    <section class="latest" aria-labelledby="latest-title"><div class="wrap latest-grid"><div><p class="eyebrow">Latest · open source</p><h2 id="latest-title">${latest.name}</h2><p>${latest.description} It started as a written specification that I directed, then was built with AI coding agents to test whether the approval and merge model held up.</p><ul class="facts"><li><b>MIT</b>licensed, free to use</li><li><b>61</b>daemon tests, real git and PTYs</li><li><b>2 OS</b>CI on Linux and macOS</li><li><b>4</b>milestones implemented</li></ul>${link("/projects/" + latest.slug + "/", "Read the case study", "text-link")} &nbsp; ${link("https://github.com/Waaajid/" + latest.repo, "GitHub", "text-link")}</div><figure class="latest-shot"><img src="/assets/${latest.image}" alt="${latest.alt}" width="1568" height="400"><figcaption>The overview board in demo mode, with mock agents.</figcaption></figure></div></section>
+    <section class="work"><div class="wrap"><div class="section-head"><h2>More work, with the caveats</h2>${link("/projects/", "All projects", "text-link")}</div><div class="cards">${others.map((p) => `<a class="card" href="/projects/${p.slug}/"><img src="/assets/${p.image}" alt="" width="1440" height="900" loading="lazy"><h3>${p.name}</h3><p class="meta">${p.type}</p><p>${p.description}</p></a>`).join("")}</div></div></section>
+    <section class="approach"><div class="wrap"><p class="eyebrow">How I work</p><div class="approach-grid"><div><h3>Frame the problem</h3><p>Start from the user’s task and the workaround they use today. Decide what evidence would change the plan.</p></div><div><h3>Specify the system</h3><p>Workflows, state, schemas and failure behaviour that engineering can build and test against.</p></div><div><h3>Check the behaviour</h3><p>Evaluate what the system does, including the failures, before calling it a product.</p></div></div><p style="margin-top:32px">${link("/product/", "Product approach", "text-link")} &nbsp; ${link("/ai/", "AI systems practice", "text-link")}</p></div></section>
+    <section class="contact-new"><div class="wrap"><p class="eyebrow">Contact</p><h2>Have a hard product question? <em>Let’s talk.</em></h2><a class="contact-mail" href="mailto:wajithkhan05@gmail.com">wajithkhan05@gmail.com</a></div></section>
+    <div class="new-footer"><span>Wajid Khan · AI Product Manager · London</span><a href="https://github.com/Waaajid" target="_blank" rel="noopener noreferrer">GitHub ${arrow}</a><a href="https://www.linkedin.com/in/waajidkhan/" target="_blank" rel="noopener noreferrer">LinkedIn ${arrow}</a></div>
+  </main>`, "", "home",
+);
 await page(
   "/projects/",
   "Projects",
@@ -189,6 +182,45 @@ const diagram = (steps, caption) =>
   `<figure class="architecture"><figcaption>Architecture diagram · Based on reviewed code</figcaption><div>${steps.map((s) => `<span>${s}</span>`).join('<b aria-hidden="true">→</b>')}</div><p>${caption}</p></figure>`;
 for (const p of projects) {
   let body = "";
+  if (p.slug === "coding-agent-aggregator")
+    body =
+      section(
+        "The problem",
+        "Running several coding agents on one repository goes wrong in predictable ways: they overwrite each other’s files, a blocked permission prompt goes unnoticed in a terminal, and the person coordinating ends up shuttling status between a manager agent and a markdown file.",
+        "This project is for developers who already use more than one coding-agent CLI and want one place to see all of them, approve what needs approving, and merge what is good.",
+      ) +
+      section(
+        "My contribution",
+        "The repository starts from a written product specification, protocol and data model (five documents, all in the repo). I directed that design, and the implementation was built with AI coding agents working against it. It is open source under the MIT licence.",
+        "Several spec decisions were changed once the system met reality, and each is recorded in the README under deliberate differences. The clearest example is that the manager agent holds a separate credential that cannot approve its own merge.",
+      ) +
+      diagram(
+        [
+          "Manager agent / MCP",
+          "Daemon + SQLite",
+          "Worker agent in git worktree",
+          "Approval queue",
+          "Diff review + merge",
+        ],
+        "The manager delegates through MCP tools. Each worker runs in its own worktree on its own branch. Permission requests and merges wait in one queue for a human decision, shown in a web and mobile control plane.",
+      ) +
+      section(
+        "The implementation",
+        "A Node.js daemon owns task state, worktrees, agent processes and approvals. Adapters normalise Claude Code, Codex and configurable CLIs. A hook intercepts Claude’s tool calls and fails closed. The React control plane streams live terminals and diffs over WebSocket, and an MCP server exposes delegate, status, diff, feedback and merge to the manager.",
+        "Approval policies run from asking for everything to automatically allowing side-effect-free commands. Edits outside a worktree always need a human.",
+      ) +
+      section(
+        "The trade-offs",
+        "Isolation by worktree removes file collisions but costs disk and setup time for dependencies, which the per-repository configuration partly handles by copying or symlinking.",
+        "Headless Codex runs in its own sandbox and cannot be gated by the approval queue, so the API warns when a gating policy is requested for it. Workers are children of the daemon, so a hard kill leaves a failed task and a kept worktree to retry.",
+        "A manager can target any git repository on the machine. Scoping that is not implemented and is listed as a known limit.",
+      ) +
+      section(
+        "Current status",
+        "Type-checking and 61 daemon tests pass, covering real git operations, pseudo-terminals, the hook script and mock agent CLIs. The MCP server is tested over stdio. Continuous integration runs on Linux and macOS. The interface shown above was captured running locally against mock agents.",
+        "The Codex, Gemini and Antigravity CLIs were not available during development, so their flags are unverified against the real binaries and can be overridden in configuration. No claim is made about performance with real long-running agent sessions.",
+        `Source, specifications and licence: ${link("https://github.com/Waaajid/coding-agent-aggregator", "github.com/Waaajid/coding-agent-aggregator")}`,
+      );
   if (p.slug === "ai-red-team")
     body =
       section(
@@ -338,7 +370,9 @@ for (const p of projects) {
         "The UI is missing and end-to-end generation was not tested. The README’s placeholder demo link has been omitted.",
       );
   const caption =
-    p.slug === "luma-playground"
+    p.slug === "coding-agent-aggregator"
+      ? "Actual interface captured locally in demo mode with mock agents. No real agent runs shown."
+      : p.slug === "luma-playground"
       ? "Architecture diagram. The frontend is missing from the reviewed repository."
       : p.slug === "ai-red-team"
         ? "Actual local interface. Connection labels are not live health checks; model services were not verified."
@@ -362,7 +396,7 @@ await page(
   "/404.html",
   "Page not found",
   "Find your way back to Wajid Khan’s portfolio.",
-  `<main id="main" class="content-main">${hero(0, "Page not found", "A little off course.", "This page doesn’t exist. The four chapters are always within reach.")}<div class="error-links">${destinations.map(([label, url]) => link(url, label)).join("")}</div></main>`,
+  `<main id="main" class="content-main">${hero(0, "Page not found", "A little off course.", "This page doesn’t exist. The main sections are always within reach.")}<div class="error-links">${destinations.map(([label, url]) => link(url, label)).join("")}</div></main>`,
 );
 await cp(path.join(root, "assets"), path.join(out, "assets"), {
   recursive: true,

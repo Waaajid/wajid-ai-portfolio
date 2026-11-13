@@ -18,8 +18,8 @@ const files = await walk(root),
   html = files.filter((f) => f.endsWith(".html"));
 assert.equal(
   html.length,
-  10,
-  "Expected homepage, four destinations, four case studies and 404",
+  11,
+  "Expected homepage, four destinations, five case studies and 404",
 );
 for (const file of html) {
   const source = await readFile(file, "utf8");
@@ -33,7 +33,7 @@ for (const file of html) {
     "Agent discovery link",
   );
   for (const match of source.matchAll(/(?:href|src)="([^"]+)"/g)) {
-    const url = match[1];
+    const url = match[1].split("?")[0];
     if (url.startsWith("#")) {
       assert(ids.includes(url.slice(1)), `Missing anchor ${url}`);
       continue;
@@ -51,8 +51,8 @@ const agentFiles = files.filter(
 );
 assert.equal(
   agentFiles.length,
-  11,
-  "Nine page Markdown files and two agent entry points",
+  12,
+  "Ten page Markdown files and two agent entry points",
 );
 for (const file of agentFiles) {
   const source = await readFile(file, "utf8");

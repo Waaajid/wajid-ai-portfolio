@@ -2,7 +2,7 @@
 
 Live: https://wajids.co.uk/
 
-Four destinations: Product, AI, Projects and Contact. The homepage uses native scroll and CSS 3D transforms to move between spatial chapters. Titles are real HTML links. Dedicated pages and case studies are generated as complete static HTML, so direct URLs, refresh and browser history work without a client router.
+Four destinations: Product, AI, Projects and Contact. The homepage introduces the portfolio and links to each destination and selected work. Dedicated pages and case studies are generated as complete static HTML, so direct URLs, refresh and browser history work without a client router.
 
 ## Build and preview
 
@@ -18,7 +18,7 @@ Open http://localhost:8080. Edit content in `scripts/build.mjs`, styles in `styl
 
 ## Accessibility
 
-Native scrolling supports touch. The homepage provides chapter buttons, permanent destination links and keyboard chapter navigation with arrow keys, Page Up/Down, Home and End. All links support visible keyboard focus. Inactive spatial chapters are inert. Simple view exposes all four chapters in document order and is the default for reduced motion. Without JavaScript, the same complete list remains usable. CSS 3D has no WebGL dependency; unsupported perspective falls back to simple view.
+The site uses native scrolling, standard links, visible keyboard focus and no JavaScript for layout. It declares a light colour scheme and respects reduced-motion preferences.
 
 ## Hosting
 
@@ -41,6 +41,7 @@ Reviewed 3 November 2026:
 | AI Red Team Tool    | `ai-redteam-competition-tool` at `f18bcc5` | Actual local interface; TypeScript check passed. Model evaluation requires configured services and credentials; no end-to-end model results claimed.                                                                                       |
 | Monster Manor       | `monster-manor` at `e56455f`               | Actual local interface and solo game; rule suite checked. Public deployment and player capacity remain unverified.                                                                                                                         |
 | Team Quiz Game      | `quiz-red-ready` at `29d647d`              | Actual local instructions and player-entry captures; Vite build and TypeScript check passed. Full Firebase multiplayer and earned-reward flows remain unverified. The hosted demo differs from this checkout, so no Play link is included. |
+| Coding Agent Aggregator | `coding-agent-aggregator` at `913ed68` | Open source (MIT). Interface captured in demo mode with mock agents; typecheck, 61 daemon tests and CI on Linux and macOS pass. Real Codex, Gemini and Antigravity CLIs unverified. |
 | Luma API Playground | `lumalabstest` at `720ab58`                | Labelled architecture diagram. The server references a missing `public/index.html`; no demo link or generated result claimed.                                                                                                              |
 
 Team Quiz Game verification also exercised the original question component in isolation: answer submission, field locking, the twelve-second timer and its next-question signal passed. The host interface was rendered with database traffic blocked; no live game session was created. The local scratch library request was blocked, so scratch interaction was not verified. The hosted URL listed by the repository loads, but its session-entry controls differ and `/instructions` shows its not-found view.
