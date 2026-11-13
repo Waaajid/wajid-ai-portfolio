@@ -207,6 +207,9 @@ img { max-width: 100%; height: auto; display: block; }
   .contact-links a { grid-template-columns: 1fr auto; }
   .contact-links span:first-child { grid-column: 1 / -1; }
 }
+@media (max-width: 860px) {
+  img[src*="aggregator"] { aspect-ratio: 4 / 3 !important; object-fit: cover; object-position: left top; }
+}
 @media (max-width: 480px) {
   body { font-size: 16px; }
   .site-header { gap: 12px; }
