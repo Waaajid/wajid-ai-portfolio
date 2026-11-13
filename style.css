@@ -40,7 +40,7 @@ img { max-width: 100%; height: auto; display: block; }
   width: min(100% - 2 * var(--gutter), var(--max)); margin: 12px auto 0;
   padding: 8px 8px 8px 22px; background: var(--white); border: var(--bw) solid var(--line); border-radius: 999px;
 }
-.wordmark { font: 800 18px/1 var(--display); letter-spacing: -0.03em; }
+.wordmark { white-space: nowrap; font: 800 18px/1 var(--display); letter-spacing: -0.03em; }
 .wordmark span { color: var(--sun); }
 .site-header nav { display: flex; gap: 4px; font-size: 15px; font-weight: 700; }
 .site-header nav a { padding: 9px 16px; border-radius: 999px; }
@@ -161,7 +161,7 @@ img { max-width: 100%; height: auto; display: block; }
 .project-image { grid-column: 2; grid-row: 1 / span 2; border: var(--bw) solid var(--line); border-radius: 16px; overflow: hidden; background: var(--sky-2); }
 .project-image img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; object-position: top; transition: transform 0.4s var(--ease); }
 .project-image:hover img { transform: scale(1.03); }
-.project-image img[src*="aggregator"] { aspect-ratio: auto; }
+.project-image img[src*="aggregator-overview"] { aspect-ratio: auto; }
 .project-summary { grid-column: 1; }
 .project-summary > div { display: grid; gap: 14px; justify-items: start; }
 .project-summary > p { font-weight: 600; }
@@ -207,12 +207,15 @@ img { max-width: 100%; height: auto; display: block; }
   .decision-row { grid-template-columns: 1fr; gap: 10px; }
   .contact-links a { grid-template-columns: 1fr auto; }
   .contact-links span:first-child { grid-column: 1 / -1; }
-  img[src*="aggregator"] { aspect-ratio: 4 / 3 !important; object-fit: cover; object-position: left top; }
+  img[src*="aggregator-overview"] { aspect-ratio: 4 / 3 !important; object-fit: cover; object-position: left top; }
 }
 @media (max-width: 560px) {
   body { font-size: 16px; }
   .site-header { padding-left: 16px; }
-  .site-header nav a { padding: 8px 10px; font-size: 14px; }
+  .site-header { padding-left: 14px; gap: 6px; }
+  .wordmark { font-size: 16px; }
+  .site-header nav { gap: 0; }
+  .site-header nav a { padding: 8px 8px; font-size: 13px; }
   .bento { grid-template-columns: 1fr; }
   .tile.c2, .tile.c3, .tile.c4, .tile.c5 { grid-column: 1; }
   .hero-visual img { box-shadow: 6px 6px 0 var(--navy); }

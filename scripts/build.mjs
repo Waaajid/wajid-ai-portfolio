@@ -101,7 +101,7 @@ const projects = [
     type: "Open source · TypeScript / Node.js / React / MCP",
     description:
       "A local-first daemon that lets a manager coding agent delegate work to worker agents in isolated git worktrees, with one control plane to approve, review and merge.",
-    image: "aggregator.jpg",
+    image: "aggregator-overview.jpg",
     alt: "The Coding Agent Aggregator overview board running against mock agents: tasks moving through working, ready to review and needs attention, with an approvals counter.",
     status: "Open source (MIT) · Tests and CI pass · Real Codex and Gemini CLIs unverified",
     repo: "coding-agent-aggregator",
@@ -173,7 +173,7 @@ await page(
 await page(
   "/projects/",
   "Projects",
-  "Selected public projects: AI Red Team Tool, Monster Manor, Team Quiz Game and Luma API Playground, with evidence and honest status.",
+  "Selected public projects: Coding Agent Aggregator, AI Red Team Tool, Monster Manor, Team Quiz Game and Luma API Playground, with evidence and honest status.",
   `<main id="main" class="content-main">${hero(3, "Projects", "Working ideas.<br>Visible decisions.", "A selection from my public GitHub. Each study separates what the code implements, what I could run, and what still needs verification.")}<section class="project-list" aria-label="Selected projects">${projects.map((p, i) => `<article class="project-feature"><div class="project-heading"><span class="row-number">0${i + 1}</span><h2><a href="/projects/${p.slug}/">${p.name} ${arrow}</a></h2><p>${p.type}</p></div><a class="project-image" href="/projects/${p.slug}/" tabindex="-1" aria-hidden="true"><img src="/assets/${p.image}" alt="" width="1440" height="900" loading="lazy"></a><div class="project-summary"><p>${p.description}</p><div><p class="project-status">${p.status}</p>${link(`/projects/${p.slug}/`, "Read the case study")}</div></div></article>`).join("")}</section><section class="next-section"><span>More experiments, in the open</span>${link("https://github.com/Waaajid", "Explore GitHub")}</section></main>`,
   "Projects",
 );
